@@ -10,11 +10,39 @@ function replace(template, params) {
 	return template;
 }
 
+function formatTimestamp(timestamp) {
+	var date = new Date(timestamp);
+	var now = new Date();
+	
+	var time = [ now.getHours(), now.getMinutes(), now.getSeconds() ];
+	var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+
+	// Convert hour from military time
+  	time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+
+	// If hour is 0, set it to 12
+  	time[0] = time[0] || 12;
+
+	// If seconds and minutes are less than 10, add a zero
+  	for ( var i = 1; i < 3; i++ ) {
+	    if ( time[i] < 10 ) {
+      	time[i] = "0" + time[i];
+    	}
+  	}
+
+	// Return the formatted string
+  	return time.join(":") + " " + suffix;
+}
+
 var Main = (function() {
+
+	var logDiv;
+	var lockCheckbox;
 
 	return {
 		init: function() {
-			var logDiv = document.getElementById("logs");
+			logDiv = document.getElementById("logs");
+			lockCheckbox = document.getElementById("lock-checkbox");
 
 			function getTemplate(id) {
 				return $('#' + id).text();
@@ -37,11 +65,17 @@ var Main = (function() {
 						templates[data.level.toLowerCase()],
 						{
 							message: data.message,
-							timestamp: data.timestamp
+							timestamp: formatTimestamp(data.timestamp)
 						});
 
 					logDiv.appendChild($.parseHTML(htmlString)[0]);
 				});
+
+			window.setInterval(function() {
+				if (lockCheckbox.checked) {
+					logDiv.scrollTop = logDiv.scrollHeight;
+				}
+			}, 0)
 		}
 	};
 })();

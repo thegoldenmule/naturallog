@@ -87,6 +87,11 @@ td {
   margin-left: 10px;
   width: 400px;
 }
+.lock-div {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+}
 p {
   margin: 0;
   padding-left: 10px;
@@ -116,4 +121,5 @@ p {
 }
 .timestamp {
   padding-right: 6px;
+  font-weight: bold;
 }
