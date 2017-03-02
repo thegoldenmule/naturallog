@@ -114,3 +114,6 @@ p {
 .log-error {
   background-color: #FF3232;
 }
+.timestamp {
+  padding-right: 6px;
+}

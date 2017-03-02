@@ -1,12 +1,27 @@
 const log = require('electron-log')
+const app = require('http').createServer(handler)
+const io = require('socket.io')(app);
+const port = 8080;
 
-var clientConn = require('express')();
-var clientIOServer = require('http').createServer(clientConn);
-var io = require('socket.io')(clientIOServer);
-var port = 80;
+var sessions = []
 
-log.info("Starting socket.io.")
+function handler (req, res) {
+	log.debug("Request : " + req)
+}
 
-clientIOServer.listen(port, function () {
-  log.info('Socket.io listening at port ' + port + '.');
+io.on('connection', function (socket) {
+	log.info("New connection on " + port)
+
+	sessions.push(socket)
 });
+
+log.info("Listening on port " + port)
+app.listen(port)
+
+module.exports = {
+	onlog : function(message) {
+		for (var i = 0; i < sessions.length; i++) {
+			sessions[i].emit('log', message);
+		}
+	}
+};

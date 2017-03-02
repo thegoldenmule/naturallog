@@ -4,12 +4,28 @@
     <meta charset="utf-8">
     <title>Log-O-Matic 5000</title>
 
-    <link href="stylesheets/main.css" rel="stylesheet" type="text/css">
+    <!-- Electron compatibility. -->
+    <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+        <script src="client/jquery.3.3.1.min.js"></script>
+        <script src="client/socket.io.js"></script>
+        <script src="client/main.js"></script>
+    <script>if (window.module) module = window.module;</script>
 
-    <script src="client/socket.io.js"></script>
-    <script src="client/main.js"></script>
+    <link href="stylesheets/main.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+    <script>
+    $(document).ready(Main.init);
+    </script>
+
+    <!-- Templates -->
+    <script type="text/template" id="template_system"><p class='log-system'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_info"><p class='log-info'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_debug"><p class='log-debug'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_warn"><p class='log-warn'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_error"><p class='log-error'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
+    <!-- End Templates -->
+
     <div id="container">
         <div id="configuration-div">
             <p>
@@ -25,37 +41,7 @@
             </table>
         </div>
         <div id="logs">
-            <p class="log-system">This is a system message.</p>
-            <p class="log-debug">This is a straightforward debug message.</p>
-            <p class="log-debug">This is another debug message.</p>
-            <p class="log-info">This is an info message.</p>
-            <p class="log-warn">This is a multiline warning message.</p>
-            <p class="log-error">This is another error message.</p>
-            <p class="log-debug">This is a straightforward debug message.</p>
-            <p class="log-debug">This is another debug message.</p>
-            <p class="log-warn">This is a multiline warning message.</p>
-            <p class="log-system">This is a system message.</p>
-            <p class="log-error">This is another error message.</p>
-            <p class="log-debug">This is a straightforward debug message.</p>
-            <p class="log-debug">This is another debug message.</p>
-            <p class="log-warn">This is a multiline warning message.</p>
-            <p class="log-error">This is another error message.</p>
-            <p class="log-debug">This is a straightforward debug message.</p>
-            <p class="log-debug">This is another debug message.</p>
-            <p class="log-warn">This is a multiline warning message.</p>
-            <p class="log-error">This is another error message.</p>
-            <p class="log-debug">This is a straightforward debug message.</p>
-            <p class="log-debug">This is another debug message.</p>
-            <p class="log-warn">This is a multiline warning message.</p>
-            <p class="log-error">This is another error message.</p>
-            <p class="log-debug">This is a straightforward debug message.</p>
-            <p class="log-debug">This is another debug message.</p>
-            <p class="log-warn">This is a multiline warning message.</p>
-            <p class="log-error">This is another error message.</p>
-            <p class="log-debug">This is a straightforward debug message.</p>
-            <p class="log-debug">This is another debug message.</p>
-            <p class="log-warn">This is a multiline warning message.</p>
-            <p class="log-error">This is another error message.</p>
+            
         </div>
         <div id="toolbox">
             <div class="vertically-centered">

@@ -28,7 +28,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  //win.webContents.openDevTools()
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -61,5 +61,5 @@ app.on('activate', () => {
   }
 })
 
-require('./server/logserver.js')
-require('./server/clientcomm.js')
+var clientComm = require('./server/clientcomm.js');
+var logServer = require('./server/logserver.js')(clientComm);

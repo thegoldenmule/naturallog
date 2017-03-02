@@ -1,48 +1,54 @@
-const log = require('electron-log')
+module.exports = function(clientComm) {
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-var ws = require("nodejs-websocket")
+  const log = require('electron-log')
+  const ws = require("nodejs-websocket")
 
-var logLevels = [
-  "Info",
-  "Debug",
-  "Warn",
-  "Error"
-];
+  var logLevels = [
+    "Info",
+    "Debug",
+    "Warn",
+    "Error"
+  ];
 
-log.debug("Starting WebSocket server.")
+  var sessions = []
 
-var server = ws.createServer(function (conn) {
-    log.debug("New connection")
+  log.debug("Starting WebSocket server.")
 
-    var timestamp = new Date().now();
-    var session = new {
-      start : timestamp,
-      messages : []
-    }
+  var server = ws.createServer(function (conn) {
+      log.debug("New connection")
 
-    var messageRegex = new RegExp(/^\{(\w*)\}:(.*)$/)
-    conn.on("text", function (message) {
-        var match = logMessageRegex.exec(message)
-        if (match) {
-          var type = match[1];
-          var message = match[2];
-          if (type == "Identify") {
-            session.name = message;
+      var timestamp = Date.now();
+      var session = {
+        start : timestamp,
+        messages : []
+      };
+      sessions.push(session);
+
+      var messageRegex = new RegExp(/^\{(\w*)\}:(.*)$/)
+      conn.on("text", function (message) {
+          var match = messageRegex.exec(message)
+          if (match) {
+            var type = match[1];
+            var message = match[2];
+            if (type == "Identify") {
+              session.name = message;
+            }
+            else if (-1 != logLevels.indexOf(type)) {
+              var packet = {
+                timestamp: Date.now(),
+                level: type,
+                message: message
+              };
+              session.messages.push(packet);
+
+              clientComm.onlog(packet);
+            }
           }
-          else if (logLevels.contains(type)) {
-            var timestamp = new Date().now();
+      })
+      conn.on("close", function (code, reason) {
+          log.debug("Connection closed")
+          sessions.remove(conn);
+      })
+  }).listen(9999)
 
-            session.messages.add({
-              timestamp: timestamp,
-              level: type,
-              message: message
-            })
-          }
-        }
-    })
-    conn.on("close", function (code, reason) {
-        log.debug("Connection closed")
-    })
-}).listen(9999)
+};
