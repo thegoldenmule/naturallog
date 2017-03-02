@@ -68,6 +68,17 @@ app.on('activate', () => {
   }
 })
 
+var clientConn = require('express')();
+var clientIOServer = require('http').createServer(clientConn);
+var io = require('socket.io')(clientIOServer);
+var port = 80;
+
+log.info("Starting socket.io.")
+
+clientIOServer.listen(port, function () {
+  log.info('Socket.io listening at port ' + port + '.');
+});
+
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 var ws = require("nodejs-websocket")
