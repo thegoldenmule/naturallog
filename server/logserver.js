@@ -10,9 +10,9 @@ module.exports = function(clientComm) {
     "Error"
   ];
 
-  var sessions = []
+  var sessions = [];
 
-  log.debug("Starting WebSocket server.")
+  log.debug("Starting WebSocket server.");
 
   var server = ws.createServer(function (conn) {
       log.debug("New connection")
@@ -24,9 +24,9 @@ module.exports = function(clientComm) {
       };
       sessions.push(session);
 
-      var messageRegex = new RegExp(/^\{(\w*)\}:(.*)$/)
+      var messageRegex = new RegExp(/^\{(\w*)\}:(.*)$/);
       conn.on("text", function (message) {
-          var match = messageRegex.exec(message)
+          var match = messageRegex.exec(message);
           if (match) {
             var type = match[1];
             var message = match[2];
@@ -41,14 +41,15 @@ module.exports = function(clientComm) {
               };
               session.messages.push(packet);
 
-              clientComm.onlog(packet);
+              clientComm.forward('log', packet);
             }
           }
-      })
+      });
+
       conn.on("close", function (code, reason) {
-          log.debug("Connection closed")
+          log.debug("Connection closed");
           sessions.remove(conn);
-      })
-  }).listen(9999)
+      });
+  }).listen(9999);
 
 };

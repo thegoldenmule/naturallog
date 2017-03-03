@@ -38,15 +38,19 @@ var Main = (function() {
 
 	var logDiv;
 	var lockCheckbox;
+	var statusField;
+	var ipField;
+
+	function getTemplate(id) {
+		return $('#' + id).text();
+	}
 
 	return {
 		init: function() {
 			logDiv = document.getElementById("logs");
 			lockCheckbox = document.getElementById("lock-checkbox");
-
-			function getTemplate(id) {
-				return $('#' + id).text();
-			}
+			statusField = document.getElementById("field-status");
+			ipField = document.getElementById("field-ip");
 
 			var templates = {
 				'system': getTemplate('template_system'),
@@ -71,6 +75,21 @@ var Main = (function() {
 					logDiv.appendChild($.parseHTML(htmlString)[0]);
 				});
 
+			socket.on(
+				'info',
+				function (data) {
+					console.log("Received info : " + data);
+
+					if (data.status == 0) {
+						statusField.innerHTML = "Listening for connections on";
+					} else {
+						statusField.innerHTML = "Initializing server on";
+					}
+
+					ipField.innerHTML = data.ip;
+				});
+
+			// lock the scroll window to the bottom
 			window.setInterval(function() {
 				if (lockCheckbox.checked) {
 					logDiv.scrollTop = logDiv.scrollHeight;
