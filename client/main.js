@@ -86,7 +86,9 @@ var Main = (function() {
 						statusField.innerHTML = "Initializing server on";
 					}
 
-					ipField.innerHTML = data.ip;
+					ipField.innerHTML = data.ips
+						? data.ips.join(", ")
+						: "???.???.???";
 				});
 
 			// lock the scroll window to the bottom
