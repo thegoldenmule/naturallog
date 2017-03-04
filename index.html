@@ -24,6 +24,8 @@
     <script type="text/template" id="template_debug"><p class='log-debug'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
     <script type="text/template" id="template_warn"><p class='log-warn'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
     <script type="text/template" id="template_error"><p class='log-error'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
+
+    <script type="text/template" id="template_tab"><td><span class="tab-close">&#10006;</span><span id="{{tabTitleId}}" class="tab-title">{{title}}</span></td></script>
     <!-- End Templates -->
 
     <div id="container">
@@ -34,8 +36,8 @@
         </div>
         <div id="tabs">
             <table>
-                <tr>
-                    <td><span class="tab-close">&#10006;</span><span class="tab-title">BJordan</span></td>
+                <tr id="tr-tabs">
+                    
                 </tr>
             </table>
         </div>

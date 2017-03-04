@@ -61,5 +61,5 @@ app.on('activate', () => {
   }
 })
 
-var clientComm = require('./server/clientcomm.js');
-var logServer = require('./server/logserver.js')(clientComm);
+var clientComm = require('./server/log-client-controller.js');
+var logServer = require('./server/log-server.js')(clientComm);

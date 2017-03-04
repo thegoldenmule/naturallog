@@ -1,6 +1,11 @@
+/**
+ * This file receives logs from clients via websockets.
+ */
+
 const log = require('electron-log');
 const ws = require("nodejs-websocket");
 const os = require('os');
+
 const port = 9999;
 
 var logLevels = [
@@ -10,7 +15,7 @@ var logLevels = [
   "Error"
 ];
 
-var sessions = [];
+var clients = [];
 
 // gather ip addresses
 var interfaces = os.networkInterfaces();
@@ -28,59 +33,79 @@ for (var prop in interfaces) {
   }
 }
 
-function onConnect(clientComm) {
-  return function(conn) {
-    log.debug("Connected to log client.");
+var ids = 0;
+
+function onConnect(logClient) {
+  return function(client) {
+    log.debug("New client connection.");
 
     // save session
     var timestamp = Date.now();
+    var id = ids++;
     var session = {
+      id: id,
+      name : "Client_" + id,
       start : timestamp,
       messages : []
     };
-    sessions.push(session);
+    clients.push(session);
+
+    // update log-client
+    logClient.forward("addClient", session);
 
     // listen for text
     var messageRegex = new RegExp(/^\{(\w*)\}:(.*)$/);
-    conn.on("text", function (message) {
+    client.on("text", function (message) {
         var match = messageRegex.exec(message);
         if (match) {
           var type = match[1];
           var message = match[2];
           if (type == "Identify") {
             session.name = message;
+
+            // update log-client
+            logClient.forward("updateClient", session);
           }
           else if (-1 != logLevels.indexOf(type)) {
             var packet = {
+              name: session.name,
               timestamp: Date.now(),
               level: type,
               message: message
             };
             session.messages.push(packet);
 
-            clientComm.forward('log', packet);
+            logClient.forward('log', packet);
           }
         }
     });
 
-    conn.on("close", function (code, reason) {
-        log.debug("Connection closed");
-        sessions.remove(conn);
+    // listen for the socket to close
+    client.on("close", function (code, reason) {
+        log.debug("Client connection closed.");
+        
+        var index = clients.indexOf(session);
+        if (-1 != index) {
+          clients.splice(index, 1);
+        }
+
+        // update log-client
+        logClient.forward("removeClient", session);
     });
   };
 }
 
-module.exports = function(clientComm) {
+module.exports = function(logClient) {
   log.debug("Starting WebSocket server.");
 
-  // give info to clientComm
-  clientComm.setInfo(
+  // give info to the client
+  logClient.setInfo(
   {
     status:0,
     ips:ipAddresses
   });
 
   var server = ws
-    .createServer(onConnect(clientComm))
+    .createServer(onConnect(logClient))
     .listen(port);
 };
