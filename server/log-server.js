@@ -68,14 +68,17 @@ function onConnect(logClient) {
           }
           else if (-1 != logLevels.indexOf(type)) {
             var packet = {
-              name: session.name,
+              id: id,
               timestamp: Date.now(),
               level: type,
-              message: message
+              content: message
             };
             session.messages.push(packet);
 
             logClient.forward('log', packet);
+          }
+          else {
+            log.warn("Unknown message received.");
           }
         }
     });

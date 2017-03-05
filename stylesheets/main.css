@@ -123,3 +123,6 @@ p {
   padding-right: 6px;
   font-weight: bold;
 }
+.log-hidden {
+  display: none;
+}

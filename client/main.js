@@ -36,8 +36,20 @@ function formatTimestamp(timestamp) {
 
 var Main = (function() {
 
+	// contains information about log-server
+	var logServerInfo = {
+		status: -1,
+		ips : ["???.???.???"]
+	};
+
+	//	client
+	//		-> info
+	//		-> tab
+	//		-> messages
+	// 		-> elements
 	var clients = [];
-	var tabs = [];
+	var activeClient = -1;
+	
 	var logTemplates = {};
 
 	var logDiv;
@@ -45,8 +57,11 @@ var Main = (function() {
 	var tabContainer;
 	var statusField;
 	var ipField;
+	var regexField;
 
-	function initTemplates() {
+	var regex = null;
+
+	function cacheTemplates() {
 		logTemplates = {
 			'system': getTemplate('template_system'),
 			'info': getTemplate('template_info'),
@@ -60,104 +75,182 @@ var Main = (function() {
 		return $('#' + id).text();
 	}
 
+	function isMatch(message) {
+		return null === regex || regex.test(message);
+	}
+
+	function updateLogServerStatus() {
+		if (logServerInfo.status == 0) {
+			statusField.innerHTML = "Listening for connections on";
+		} else {
+			statusField.innerHTML = "Initializing server on";
+		}
+
+		ipField.innerHTML = logServerInfo.ips.join(", ");
+	}
+
+	function updateVisibility(element, visible) {
+		if (!visible) {
+			$(element).addClass('log-hidden');
+		} else {
+			$(element).removeClass('log-hidden');
+		}
+	}
+
+	function onRegexChanged() {
+		var value = regexField.value;
+		if (0 === value.length) {
+			regex = null;
+		} else {
+			regex = new RegExp(value);
+		}
+
+		// update all visible tabs
+		
+	}
+
+	function newTab(info) {
+		var template = getTemplate('template_tab');
+		var htmlString = replace(
+			template,
+			{
+				title: info.name,
+				tabTitleId: "tab-title-" + info.id
+			});
+		
+		return $.parseHTML(htmlString)[0];
+	}
+
+	function newLog(level, message, timestamp) {
+		var htmlString = replace(
+			logTemplates[level.toLowerCase()],
+			{
+				message: message,
+				timestamp: formatTimestamp(timestamp)
+			});
+
+		return $.parseHTML(htmlString)[0];
+	}
+
+	function onMessage_info(data) {
+		logServerInfo.status = data.status;
+		logServerInfo.ips = data.ips;
+
+		updateLogServerStatus();
+	}
+
+	function onMessage_log(message) {
+		var client = null;
+		for (var i = 0; i < clients.length; i++) {
+			var element = clients[i];
+			if (element.info.id == message.id) {
+				client = element;
+				break;
+			}
+		}
+
+		if (null === client) {
+			console.log("Log for unknown client : " + message.id);
+			return;
+		}
+
+		var element = newLog(message.level, message.content, message.timestamp);
+
+		client.elements.push(element);
+		client.messages.push(message);
+
+		var visible = isMatch(message.content);
+
+		updateVisibility(element, visible);
+
+		if (visible) {
+			logDiv.appendChild(element);
+		}
+	}
+
+	function onMessage_addClient(info) {
+		var tab = newTab(info);
+		tabContainer.appendChild(tab);
+
+		var client = {
+			info : info,
+			tab : tab,
+			messages : [],
+			elements : []
+		};
+
+		clients.push(client);
+	}
+
+	function onMessage_updateClient(info) {
+		var client = null;
+		
+		for (var i = 0; i < clients.length; i++) {
+			var element = clients[i];
+			if (element.info.id == info.id) {
+				element.info = info;
+				client = element;
+				break;
+			}
+		}
+
+		if (null === client) {
+			console.log("Update for unknown client : " + info.id);
+			return;
+		}
+
+		// update name
+		client.tab.innerHTML = info.name;
+	}
+
+	function onMessage_removeClient(info) {
+		console.log("Removed client : " + info.name);
+
+		// update tab style
+		
+	}
+
 	return {
 		init: function() {
+			// cache elements
 			logDiv = document.getElementById("logs");
 			lockCheckbox = document.getElementById("lock-checkbox");
 			tabContainer = document.getElementById("tr-tabs");
 			statusField = document.getElementById("field-status");
 			ipField = document.getElementById("field-ip");
+			regexField = document.getElementById("regex-textfield");
+
+			// cache templates
+			cacheTemplates();
+			
+			// watch changes to regex field
+			$(regexField).change(onRegexChanged);
 
 			// lock the scroll window to the bottom
 			window.setInterval(function() {
 				if (lockCheckbox.checked) {
 					logDiv.scrollTop = logDiv.scrollHeight;
 				}
-			}, 0)
-
-			initTemplates();
+			}, 0);
 
 			var socket = io('http://localhost:8080');
 
-			// listen for info events-- these contain server status information
-			socket.on(
-				'info',
-				function (data) {
-					console.log("Received info : " + data);
+			// listen for events
+			socket.on('info', onMessage_info);
+			socket.on('log', onMessage_log);
+			socket.on('addClient', onMessage_addClient);
+			socket.on('updateClient', onMessage_updateClient);
+			socket.on('removeClient', onMessage_removeClient);
 
-					if (data.status == 0) {
-						statusField.innerHTML = "Listening for connections on";
-					} else {
-						statusField.innerHTML = "Initializing server on";
-					}
+			updateLogServerStatus();
+		},
 
-					ipField.innerHTML = data.ips
-						? data.ips.join(", ")
-						: "???.???.???";
-				});
+		selectTab: function(tabid) {
 
-			// listen for logs
-			socket.on(
-				'log',
-				function (data) {
-					var htmlString = replace(
-						logTemplates[data.level.toLowerCase()],
-						{
-							message: data.message,
-							timestamp: formatTimestamp(data.timestamp)
-						});
+		},
 
-					logDiv.appendChild($.parseHTML(htmlString)[0]);
-				});
-
-			// listen for clients
-			socket.on(
-				'addClient',
-				function (client) {
-					console.log("Added client : " + client.id);
-
-					clients.push(client);
-
-					// create a new tab
-					var template = getTemplate('template_tab');
-					var htmlString = replace(
-						template,
-						{
-							title: client.name,
-							tabTitleId: "tab-title-" + client.id
-						});
-
-					var tab = $.parseHTML(htmlString)[0];
-					tabs.push(tab);
-
-					tabContainer.appendChild(tab);
-				});
-			socket.on(
-				'updateClient',
-				function (client) {
-					console.log("Updated client : " + client.id);
-
-					for (var i = 0; i < clients.length; i++) {
-						if (clients[i].id == client.id) {
-							clients[i] = client;
-							break;
-						}
-					}
-
-					// update name tab
-					var div = document.getElementById("tab-title-" + client.id);
-					if (div) {
-						div.innerHTML = client.title;
-					}
-				});
-			socket.on(
-				'removeClient',
-				function (client) {
-					console.log("Remove client : " + client.id);
-
-					// update tab style
-					
-				});
+		removeTab: function(tabid) {
+			
 		}
 	};
 })();

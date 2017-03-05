@@ -25,7 +25,7 @@
     <script type="text/template" id="template_warn"><p class='log-warn'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
     <script type="text/template" id="template_error"><p class='log-error'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
 
-    <script type="text/template" id="template_tab"><td><span class="tab-close">&#10006;</span><span id="{{tabTitleId}}" class="tab-title">{{title}}</span></td></script>
+    <script type="text/template" id="template_tab"><td><span class="tab-close"><a>&#10006;</a></span><span id="{{tabTitleId}}" class="tab-title"><a>{{title}}</a></span></td></script>
     <!-- End Templates -->
 
     <div id="container">
@@ -46,7 +46,7 @@
         </div>
         <div id="toolbox">
             <div class="vertically-centered">
-                <input type="text" class="input-text-medium">
+                <input id="regex-textfield" type="text" class="input-text-medium">
                 <span id="matches">238 matches.</span>
                 <div class="lock-div">
                     <span>Lock to end</span>
