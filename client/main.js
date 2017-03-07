@@ -48,7 +48,7 @@ var Main = (function() {
 	//		-> messages
 	// 		-> elements
 	var clients = [];
-	var activeClient = -1;
+	var activeClient = null;
 	
 	var logTemplates = {};
 
@@ -91,13 +91,15 @@ var Main = (function() {
 
 	function updateVisibility(element, visible) {
 		if (!visible) {
-			$(element).addClass('log-hidden');
+			if (!$(element).hasClass('log-hidden')) {
+				$(element).addClass('log-hidden');
+			}
 		} else {
 			$(element).removeClass('log-hidden');
 		}
 	}
 
-	function onRegexChanged() {
+	function onRegexChanged(event) {
 		var value = regexField.value;
 		if (0 === value.length) {
 			regex = null;
@@ -106,7 +108,14 @@ var Main = (function() {
 		}
 
 		// update all visible tabs
-		
+		if (null !== activeClient) {
+			var messages = activeClient.messages;
+			var elements = activeClient.elements;
+
+			for (var i = 0; i < messages.length; i++) {
+				updateVisibility(elements[i], isMatch(messages[i].content));
+			}
+		}
 	}
 
 	function newTab(info) {
@@ -118,7 +127,11 @@ var Main = (function() {
 				tabTitleId: "tab-title-" + info.id
 			});
 		
-		return $.parseHTML(htmlString)[0];
+		var tab = $.parseHTML(htmlString)[0];
+
+		$(tab).mouseup(tab_onMouseUp);
+
+		return tab;
 	}
 
 	function newLog(level, message, timestamp) {
@@ -130,6 +143,10 @@ var Main = (function() {
 			});
 
 		return $.parseHTML(htmlString)[0];
+	}
+
+	function tab_onMouseUp(event) {
+		console.log("T");
 	}
 
 	function onMessage_info(data) {
@@ -159,7 +176,7 @@ var Main = (function() {
 		client.elements.push(element);
 		client.messages.push(message);
 
-		var visible = isMatch(message.content);
+		var visible = isMatch(message.content) && activeClient === client;
 
 		updateVisibility(element, visible);
 
@@ -180,6 +197,10 @@ var Main = (function() {
 		};
 
 		clients.push(client);
+
+		if (null === activeClient) {
+			activeClient = client;
+		}
 	}
 
 	function onMessage_updateClient(info) {
@@ -224,7 +245,7 @@ var Main = (function() {
 			cacheTemplates();
 			
 			// watch changes to regex field
-			$(regexField).change(onRegexChanged);
+			$('#regex-textfield').keyup(onRegexChanged);
 
 			// lock the scroll window to the bottom
 			window.setInterval(function() {
