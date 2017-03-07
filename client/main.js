@@ -99,6 +99,17 @@ var Main = (function() {
 		}
 	}
 
+	function updateAllVisibilit() {
+		if (null != activeClient) {
+			var messages = activeClient.messages;
+			var elements = activeClient.elements;
+
+			for (var i = 0; i < messages.length; i++) {
+				updateVisibility(elements[i], isMatch(messages[i].content));
+			}
+		}
+	}
+
 	function onRegexChanged(event) {
 		var value = regexField.value;
 		if (0 === value.length) {
@@ -107,15 +118,7 @@ var Main = (function() {
 			regex = new RegExp(value);
 		}
 
-		// update all visible tabs
-		if (null !== activeClient) {
-			var messages = activeClient.messages;
-			var elements = activeClient.elements;
-
-			for (var i = 0; i < messages.length; i++) {
-				updateVisibility(elements[i], isMatch(messages[i].content));
-			}
-		}
+		updateAllVisibility();
 	}
 
 	function newTab(info) {
@@ -129,7 +132,9 @@ var Main = (function() {
 		
 		var tab = $.parseHTML(htmlString)[0];
 
-		$(tab).mouseup(tab_onMouseUp);
+		$(tab).mouseup(function (event) {
+			Main.selectTab(info.id);
+		});
 
 		return tab;
 	}
@@ -143,10 +148,6 @@ var Main = (function() {
 			});
 
 		return $.parseHTML(htmlString)[0];
-	}
-
-	function tab_onMouseUp(event) {
-		console.log("T");
 	}
 
 	function onMessage_info(data) {
@@ -267,7 +268,32 @@ var Main = (function() {
 		},
 
 		selectTab: function(tabid) {
+			for (var i = 0; i < clients.length; i++) {
+				var client = clients[i];
+				if (client.info.id == tabid) {
+					if (client == activeClient) {
+						return;
+					}
 
+					activeClient = client;
+
+					// remove all logs
+					while (logDiv.firstChild) {
+						logDiv.removeChild(logDiv.firstChild);
+					}
+
+					// add all the new logs
+					var elements = activeClient.elements;
+					var messages = activeClient.messages;
+					for (var j = 0; j < elements.length; j++) {
+						var element = elements[j];
+						var message = messages[j];
+
+						updateVisibility(element, isMatch(message));
+						logDiv.appendChild(element);
+					}
+				}
+			}
 		},
 
 		removeTab: function(tabid) {
