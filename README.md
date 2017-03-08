@@ -1,4 +1,4 @@
-![Logo](server/static/img/logo.png)
+![Logo](assets/icons/png/128x128.png)
 
 ##### Natural-Log
 
