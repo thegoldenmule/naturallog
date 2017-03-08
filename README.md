@@ -40,6 +40,10 @@ For development:
 
 `npm install && electron .`
 
+For releases:
+
+`npm run package-win package-mac package-linux`
+
 ##### Q&A
 
 **Why doesn't it do this one thing?** Probably because I didn't think about it. Make a feature request!
