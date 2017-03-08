@@ -2,7 +2,7 @@
 
 ##### Natural-Log
 
-A ~~clumbsy, heavyweight~~ nimble, lightweight log server and web client, bundled in a handy cross-platform binary.
+A ~~clumsy, heavyweight~~ nimble, lightweight log server and web client, bundled in a handy cross-platform binary.
 
 ![Screenshot](assets/screenshot.png)
 
