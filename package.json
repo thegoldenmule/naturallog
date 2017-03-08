@@ -1,10 +1,21 @@
 {
-	"name"    : "naturallog",
-	"version" : "0.1.0",
-	"dependencies": {
-		"nodejs-websocket": "1.7.1",
-		"electron-log" : "1.3.0",
-		"express" : "4.15.0",
-		"socket.io" : "1.7.3"
-	}
+  "name": "naturallog",
+  "productName": "Natural-Log",
+  "version": "0.1.0",
+  "main": "index.js",
+  "dependencies": {
+    "nodejs-websocket": "1.7.1",
+    "electron-log": "1.3.0",
+    "express": "4.15.0",
+    "socket.io": "1.7.3"
+  },
+  "devDependencies": {
+    "electron": "1.6.1",
+    "electron-packager": "8.5.2"
+  },
+  "scripts" : {
+    "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/ico/logo.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Natural-Log\"",
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/ico/icon.icns --prune=true --out=release-builds",
+    "package-linux" : "electron-packager . --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/256x256.png --prune=true --out=release-builds"
+  }
 }

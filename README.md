@@ -4,9 +4,9 @@
 
 A ~~clumbsy, heavyweight~~ minimal, lightweight log server and web client, bundled in a handy cross-platform binary.
 
-![Screenshot](server/static/img/)
+![Screenshot](assets/screenshot.png)
 
-###### Tech
+##### Tech
 
 We use `electron` to bundle a node.js server and a web client running in Chromium.
 
@@ -14,7 +14,7 @@ The server listens for logs on incoming `websocket` connections. It outputs thes
 
 The web client takes these `socket.io` events and manipulates DOM elements to present logs. Each connected client gets its own tab in the web-client.
 
-###### Protocol
+##### Protocol
 
 After establishing a websocket connection, a client can send events to natural-log. All events are text-based and are in the form:
 
@@ -30,16 +30,17 @@ _Warn_ - Sends an info level message. Eg - `{Warn}:This is a warning log!`
 
 _Error_ - Sends an info level message. Eg - `{Error}:This is an error log!`
 
-###### Usage
+##### Usage
 
 Checkout the **[naturallog-examples](https://github.com/thegoldenmule/naturallog)** project for client libraries.
 
-###### Build
+##### Build and Run
 
-`npm install`
-`electron .`
+For development:
 
-###### Q&A
+`npm install && electron .`
+
+##### Q&A
 
 **Why doesn't it do this one thing?** Probably because I didn't think about it. Make a feature request!
 

@@ -34,7 +34,7 @@ body {
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  border-top: #CCCCCC 4px solid;
+  border-top: #888888 4px solid;
 }
 #toolbox {
   position: fixed;
@@ -59,7 +59,10 @@ td {
   width: 100px;
   margin: 4px;
   padding-left: 10px;
-  background-color: #cccccc;
+  background-color: #CCCCCC;
+}
+.selected-tab {
+  background-color: #888888;
 }
 .tab-title {
   font-weight: bold;

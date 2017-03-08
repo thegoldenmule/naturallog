@@ -200,7 +200,7 @@ var Main = (function() {
 		clients.push(client);
 
 		if (null === activeClient) {
-			activeClient = client;
+			Main.selectTab(0);
 		}
 	}
 
@@ -276,6 +276,10 @@ var Main = (function() {
 					}
 
 					activeClient = client;
+
+					// unhighlight all tabs
+					$('td').removeClass('selected-tab');
+					$(activeClient.tab).addClass('selected-tab');
 
 					// remove all logs
 					while (logDiv.firstChild) {
