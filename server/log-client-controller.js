@@ -14,49 +14,57 @@ var info =	{
 			};
 
 // called when a new connection has been made to the log-client
-io.on('connection', function (socket) {
-	log.info("New log-client connection.");
+io.on(
+	'connection',
+	function (socket) {
+		logClient = socket;
 
-	// handle disconnection
-	socket.on('disconnect', function() {
-		log.info("Log-client disconnection.");
+		// handle disconnection
+		logClient.on(
+			'disconnect',
+			function() {
+				if (logClient == socket) {
+					logClient = null;
+				}
+			});
 
-		if (logClient == socket) {
-			logClient = null;
-		}
+		// send info to the client
+		logClient.emit('info', info);
 	});
 
-	logClient = socket;
-
-	// send info to the client
-	logClient.emit('info', info);
-});
-
+// listen for incoming socket.io connections
 app.listen(port);
 
 /**
- * Forwards an event to all connected clients.
- *
- * @param      {string}  event    The event
- * @param      {<type>}  message  The message
+ * The interface to the log-client.
  */
-function forward(event, message) {
-	if (null != logClient) {
-		logClient.emit(event, message);
-	}
-}
-
-// exported object
-module.exports = {
+var controller = {
 	/**
-	 * Sets info on the 
+	 * Sets the server info object. This is forwarded to the client either in
+	 * this call, or whenever it connects.
 	 *
-	 * @param      {<type>}  f_info  The f information
+	 * @param      {<type>}  f_info  The server information.
 	 */
 	setInfo: function(f_info) {
 		info = f_info;
 
-		forward('info', info);
+		controller.forward('info', info);
 	},
-	forward: forward
+
+	/**
+	 * Forwards an event to all connected clients.
+	 *
+	 * @param      {string}  event    The event
+	 * @param      {<type>}  message  The message
+	 */
+	forward: function(event, message) {
+		if (null != logClient) {
+			logClient.emit(event, message);
+		}
+	}
 };
+
+/**
+ * Expose the controller to other objects.
+ */
+module.exports = controller;

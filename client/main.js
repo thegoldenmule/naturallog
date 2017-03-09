@@ -1,8 +1,16 @@
+/**
+ * Replaces parameters in a template.
+ *
+ * @param      {string}  template  The template to replace things in.
+ * @param      {object}  params    The parameters to replace.
+ */
 function replace(template, params) {
 	for (var prop in params) {
 		if (params.hasOwnProperty(prop)) {
 			template = template.replace(
-				new RegExp("\{\{" + prop + "\}\}"),
+				new RegExp(
+					"\{\{" + prop + "\}\}",
+					"g"),
 				params[prop]);
 		}
 	}
@@ -10,6 +18,11 @@ function replace(template, params) {
 	return template;
 }
 
+/**
+ * Nicely formats a timestamp for logging.
+ *
+ * @param      {long}    timestamp  The timestamp
+ */
 function formatTimestamp(timestamp) {
 	var date = new Date(timestamp);
 	var now = new Date();
@@ -99,7 +112,7 @@ var Main = (function() {
 		}
 	}
 
-	function updateAllVisibilit() {
+	function updateAllVisibility() {
 		if (null != activeClient) {
 			var messages = activeClient.messages;
 			var elements = activeClient.elements;
@@ -127,16 +140,10 @@ var Main = (function() {
 			template,
 			{
 				title: info.name,
-				tabTitleId: "tab-title-" + info.id
+				tabId: info.id
 			});
 		
-		var tab = $.parseHTML(htmlString)[0];
-
-		$(tab).mouseup(function (event) {
-			Main.selectTab(info.id);
-		});
-
-		return tab;
+		return $.parseHTML(htmlString)[0];
 	}
 
 	function newLog(level, message, timestamp) {
@@ -193,11 +200,21 @@ var Main = (function() {
 		var client = {
 			info : info,
 			tab : tab,
+			tabTitle: document.getElementById("tab-" + info.id + "-title"),
+			tabClose: document.getElementById("tab-" + info.id + "-close"),
 			messages : [],
 			elements : []
 		};
 
 		clients.push(client);
+
+		$(client.tabTitle).mouseup(function (event) {
+			Main.selectTab(info.id);
+		});
+
+		$(client.tabClose).mouseup(function (event) {
+			Main.removeTab(info.id);
+		});
 
 		if (null === activeClient) {
 			Main.selectTab(0);
@@ -217,19 +234,35 @@ var Main = (function() {
 		}
 
 		if (null === client) {
-			console.log("Update for unknown client : " + info.id);
+			console.warn("Update for unknown client : " + info.id);
 			return;
 		}
 
 		// update name
-		client.tab.innerHTML = info.name;
+		client.tabTitle.innerHTML = info.name;
 	}
 
 	function onMessage_removeClient(info) {
-		console.log("Removed client : " + info.name);
-
-		// update tab style
+		var client = null;
 		
+		for (var i = 0; i < clients.length; i++) {
+			var element = clients[i];
+			if (element.info.id == info.id) {
+				element.info = info;
+				client = element;
+				break;
+			}
+		}
+
+		if (null === client) {
+			console.warn("Remove for unknown client : " + info.id);
+			return;
+		}
+
+		$(client.tabClose).removeClass('hidden');
+		$(client.tab)
+			.removeClass('selected-tab')
+			.addClass('dead-tab');
 	}
 
 	return {
@@ -279,7 +312,9 @@ var Main = (function() {
 
 					// unhighlight all tabs
 					$('td').removeClass('selected-tab');
-					$(activeClient.tab).addClass('selected-tab');
+					if (!$(activeClient.tab).hasClass('dead-tab')) {
+						$(activeClient.tab).addClass('selected-tab');
+					}
 
 					// remove all logs
 					while (logDiv.firstChild) {

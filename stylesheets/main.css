@@ -64,6 +64,9 @@ td {
 .selected-tab {
   background-color: #888888;
 }
+.dead-tab {
+  background-color: #FF8888;
+}
 .tab-title {
   font-weight: bold;
 }
@@ -125,6 +128,9 @@ p {
 .timestamp {
   padding-right: 6px;
   font-weight: bold;
+}
+.hidden {
+  display: none;
 }
 .log-hidden {
   display: none;

@@ -10,8 +10,6 @@ log.transports.file.maxSize = 5 * 1024 * 1024;
 log.transports.file.file = __dirname + '/log.txt';
 log.transports.file.streamConfig = { flags: 'w' };
 
-log.debug("Init.")
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win
@@ -34,7 +32,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  //win.webContents.openDevTools()
+  win.webContents.openDevTools()
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -67,5 +65,6 @@ app.on('activate', () => {
   }
 })
 
+// start our server + log-client controller
 var clientComm = require('./server/log-client-controller.js');
 var logServer = require('./server/log-server.js')(clientComm);

@@ -7,34 +7,23 @@ const ws = require("nodejs-websocket");
 const os = require('os');
 
 const port = 9999;
-
-var logLevels = [
+const logLevels = [
   "Info",
   "Debug",
   "Warn",
   "Error"
 ];
 
-var clients = [];
-
-// gather ip addresses
-var interfaces = os.networkInterfaces();
-var ipAddresses = [];
-for (var prop in interfaces) {
-  if (interfaces.hasOwnProperty(prop)) {
-    interfaces[prop].forEach(function (iface) {
-      if ('IPv4' !== iface.family) {
-        // skip over non-ipv4 addresses
-        return;
-      }
-
-      ipAddresses.push(iface.address + ":" + port);
-    });
-  }
-}
+// regex for matching messages from a client
+const messageRegex = new RegExp(/^\{(\w*)\}:(.*)$/);
 
 var ids = 0;
+var clients = [];
 
+/**
+ * Returns a function that is called when a new client connects to the
+ * log-server.
+ */
 function onConnect(logClient) {
   return function(client) {
     log.debug("New client connection.");
@@ -53,19 +42,20 @@ function onConnect(logClient) {
     // update log-client
     logClient.forward("addClient", session);
 
-    // listen for text
-    var messageRegex = new RegExp(/^\{(\w*)\}:(.*)$/);
+    // listen for text events
     client.on("text", function (message) {
+        // try to parse the message
         var match = messageRegex.exec(message);
         if (match) {
           var type = match[1];
           var message = match[2];
+
+          // handle identity events
           if (type == "Identify") {
             session.name = message;
-
-            // update log-client
             logClient.forward("updateClient", session);
           }
+          // handle log events
           else if (-1 != logLevels.indexOf(type)) {
             var packet = {
               id: id,
@@ -77,6 +67,7 @@ function onConnect(logClient) {
 
             logClient.forward('log', packet);
           }
+          // handle unknown events
           else {
             log.warn("Unknown message received.");
           }
@@ -85,21 +76,39 @@ function onConnect(logClient) {
 
     // listen for the socket to close
     client.on("close", function (code, reason) {
-        log.debug("Client connection closed.");
-        
         var index = clients.indexOf(session);
         if (-1 != index) {
           clients.splice(index, 1);
         }
 
-        // update log-client
         logClient.forward("removeClient", session);
     });
   };
 }
 
+/**
+ * Exports a function that takes the log-client-controller as a parameter.
+ *
+ * @param      {<type>}  logClient  The log-client-controller.
+ */
 module.exports = function(logClient) {
-  log.debug("Starting WebSocket server.");
+  log.debug("Starting log-server.");
+
+  // gather ip addresses
+  var ipAddresses = [];
+  var interfaces = os.networkInterfaces();
+  for (var prop in interfaces) {
+    if (interfaces.hasOwnProperty(prop)) {
+      interfaces[prop].forEach(function (iface) {
+        if ('IPv4' !== iface.family) {
+          // skip over non-ipv4 addresses
+          return;
+        }
+
+        ipAddresses.push(iface.address + ":" + port);
+      });
+    }
+  }
 
   // give info to the client
   logClient.setInfo(
@@ -108,6 +117,7 @@ module.exports = function(logClient) {
     ips:ipAddresses
   });
 
+  // start accepting client connections
   var server = ws
     .createServer(onConnect(logClient))
     .listen(port);
