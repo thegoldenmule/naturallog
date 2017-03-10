@@ -216,8 +216,10 @@ var Main = (function() {
 			Main.removeTab(info.id);
 		});
 
+		console.log("Adding new client : " + clients.indexOf(client));
+
 		if (null === activeClient) {
-			Main.selectTab(0);
+			Main.selectTab(client.info.id);
 		}
 	}
 
@@ -336,7 +338,32 @@ var Main = (function() {
 		},
 
 		removeTab: function(tabid) {
-			
+			for (var i = 0; i < clients.length; i++) {
+				var client = clients[i];
+				if (client.info.id == tabid) {
+					// remove client + tab
+					clients.splice(i, 1);
+					tabContainer.removeChild(client.tab);
+
+					// try to select another tab
+					if (i < clients.length) {
+						Main.selectTab(clients[i].info.id);
+					}
+					else if (i > 0) {
+						Main.selectTab(clients[i - 1].info.id);
+					}
+					else {
+						// couldn't select something else
+						while (logDiv.firstChild) {
+							logDiv.removeChild(logDiv.firstChild);
+						}
+
+						activeClient = null;
+					}
+
+					break;
+				}
+			}
 		}
 	};
 })();
