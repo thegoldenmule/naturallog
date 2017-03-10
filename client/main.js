@@ -216,8 +216,6 @@ var Main = (function() {
 			Main.removeTab(info.id);
 		});
 
-		console.log("Adding new client : " + clients.indexOf(client));
-
 		if (null === activeClient) {
 			Main.selectTab(client.info.id);
 		}
@@ -323,15 +321,13 @@ var Main = (function() {
 						logDiv.removeChild(logDiv.firstChild);
 					}
 
-					// add all the new logs
-					var elements = activeClient.elements;
-					var messages = activeClient.messages;
-					for (var j = 0; j < elements.length; j++) {
-						var element = elements[j];
-						var message = messages[j];
+					// update visibility of all logs
+					updateAllVisibility();
 
-						updateVisibility(element, isMatch(message));
-						logDiv.appendChild(element);
+					// add all the logs
+					var elements = activeClient.elements;
+					for (var j = 0; j < elements.length; j++) {
+						logDiv.appendChild(elements[j]);
 					}
 				}
 			}
