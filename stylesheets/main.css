@@ -72,7 +72,7 @@ td {
   background-color: #888888;
 }
 .dead-tab {
-  background-color: #FF8888;
+  border: solid 2px #FF8888;
 }
 .tab-title {
   font-weight: bold;

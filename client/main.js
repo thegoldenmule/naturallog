@@ -47,6 +47,45 @@ function formatTimestamp(timestamp) {
   	return time.join(":") + " " + suffix;
 }
 
+// Swiped from "http://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript".
+var ClipboardController = {
+	/**
+	 * Copies a block of text to the clipboard.
+	 *
+	 * @param      {<type>}   text    The text to copy.
+	 * @return     {boolean}  True if successful.
+	 */
+	copy: function(text) {
+		var textArea = document.createElement("textarea");
+		textArea.style.position = 'fixed';
+		textArea.style.top = 0;
+		textArea.style.left = 0;
+		textArea.style.width = '2em';
+		textArea.style.height = '2em';
+		textArea.style.padding = 0;
+		textArea.style.border = 'none';
+		textArea.style.outline = 'none';
+		textArea.style.boxShadow = 'none';
+		textArea.style.background = 'transparent';
+		textArea.value = text;
+
+		document.body.appendChild(textArea);
+
+		textArea.select();
+
+		var success;
+		try {
+			success = document.execCommand('copy');
+		} catch (err) {
+			success = false;
+		}
+
+		document.body.removeChild(textArea);
+
+		return success;
+	}
+};
+
 var InputController = (function() {
 
 	var combos = [];
@@ -65,6 +104,9 @@ var InputController = (function() {
 						valid = false;
 						break;
 					}
+				} else {
+					valid = false;
+					break;
 				}
 			}
 
@@ -88,7 +130,7 @@ var InputController = (function() {
 			$(document).keydown(function(event) {
 				var value = event.keyCode;
 
-				// skip alts!
+				// skip alts + windows key!
 				if (18 === value || 91 === value) {
 					return;
 				}
@@ -103,7 +145,7 @@ var InputController = (function() {
 			$(document).keyup(function(event) {
 				var value = event.keyCode;
 
-				// skip alts!
+				// skip alts + windows key!
 				if (18 === value || 91 === value) {
 					return;
 				}
@@ -124,9 +166,6 @@ var FileController = (function() {
 		},
 		open: function() {
 			console.log('FileController.Open');
-		},
-		copyToClipboard: function() {
-			console.log('FileController.Copy');
 		}
 	};
 })();
@@ -266,7 +305,34 @@ var Main = (function() {
 	}
 
 	function shiftTabs(direction) {
+		if (null === activeClient) {
+			return;
+		}
 
+		for (var i = 0; i < clients.length; i++) {
+			var client = clients[i];
+			if (client === activeClient) {
+				var index = i + direction;
+				if (index != i
+					&& index >= 0
+					&& index < clients.length) {
+					Main.selectTab(clients[index].info.id);
+				}
+			}
+		}
+	}
+
+	function gatherAllLogs() {
+		if (null === activeClient) {
+			return;
+		}
+
+		var messages = [];
+		for (var i = 0; i < activeClient.messages.length; i++) {
+			messages.push(activeClient.messages[i].content);
+		}
+
+		return message.join("\n");
 	}
 
 	function onRegexChanged(event) {
@@ -393,9 +459,7 @@ var Main = (function() {
 		}
 
 		$(client.tabClose).removeClass('hidden');
-		$(client.tab)
-			.removeClass('selected-tab')
-			.addClass('dead-tab');
+		$(client.tab).addClass('dead-tab');
 	}
 
 	return {
@@ -461,7 +525,9 @@ var Main = (function() {
 					}
 				})
 				// ctrl + shift + c
-				.register([17, 16, 67], FileController.copyToClipboard)
+				.register([17, 16, 67], function() {
+					ClipboardController.copy(gatherAllLogs());
+				})
 				.init();
 		},
 
@@ -477,9 +543,7 @@ var Main = (function() {
 
 					// unhighlight all tabs
 					$('td').removeClass('selected-tab');
-					if (!$(activeClient.tab).hasClass('dead-tab')) {
-						$(activeClient.tab).addClass('selected-tab');
-					}
+					$(activeClient.tab).addClass('selected-tab');
 
 					// remove all logs
 					while (logDiv.firstChild) {
