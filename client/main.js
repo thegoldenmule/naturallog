@@ -62,6 +62,7 @@ var Main = (function() {
 	// 		-> elements
 	var clients = [];
 	var activeClient = null;
+	var numMatches = 0;
 	
 	var logTemplates = {};
 
@@ -71,6 +72,13 @@ var Main = (function() {
 	var statusField;
 	var ipField;
 	var regexField;
+	var matchesField;
+
+	var filterInfo;
+	var filterDebug;
+	var filterWarn;
+	var filterError;
+	var filters;
 
 	var regex = null;
 
@@ -88,8 +96,9 @@ var Main = (function() {
 		return $('#' + id).text();
 	}
 
-	function isMatch(message) {
-		return null === regex || regex.test(message);
+	function isVisible(message) {
+		return (null === regex || regex.test(message.content))
+			&& filters[message.level];
 	}
 
 	function updateLogServerStatus() {
@@ -112,26 +121,30 @@ var Main = (function() {
 		}
 	}
 
+	function updateMatches() {
+		matchesField.innerHTML = numMatches + " matches.";
+	}
+
 	function updateAllVisibility() {
+		numMatches = 0;
+
 		if (null != activeClient) {
 			var messages = activeClient.messages;
 			var elements = activeClient.elements;
 
 			for (var i = 0; i < messages.length; i++) {
-				updateVisibility(elements[i], isMatch(messages[i].content));
+				var message = messages[i];
+				var match = isVisible(message);
+
+				updateVisibility(elements[i], match);
+
+				if (match) {
+					numMatches++;
+				}
 			}
 		}
-	}
 
-	function onRegexChanged(event) {
-		var value = regexField.value;
-		if (0 === value.length) {
-			regex = null;
-		} else {
-			regex = new RegExp(value);
-		}
-
-		updateAllVisibility();
+		updateMatches();
 	}
 
 	function newTab(info) {
@@ -157,6 +170,28 @@ var Main = (function() {
 		return $.parseHTML(htmlString)[0];
 	}
 
+	function rebuildFilters() {
+		filters = {
+			'info' : filterInfo.checked,
+			'debug' : filterDebug.checked,
+			'warn' : filterWarn.checked,
+			'error' : filterError.checked
+		};
+
+		updateAllVisibility();
+	}
+
+	function onRegexChanged(event) {
+		var value = regexField.value;
+		if (0 === value.length) {
+			regex = null;
+		} else {
+			regex = new RegExp(value);
+		}
+
+		updateAllVisibility();
+	}
+
 	function onMessage_info(data) {
 		logServerInfo.status = data.status;
 		logServerInfo.ips = data.ips;
@@ -165,6 +200,9 @@ var Main = (function() {
 	}
 
 	function onMessage_log(message) {
+		// cleanup
+		message.level = message.level.toLowerCase();
+
 		var client = null;
 		for (var i = 0; i < clients.length; i++) {
 			var element = clients[i];
@@ -184,9 +222,14 @@ var Main = (function() {
 		client.elements.push(element);
 		client.messages.push(message);
 
-		var visible = isMatch(message.content) && activeClient === client;
+		var visible = activeClient === client && isVisible(message);
 
 		updateVisibility(element, visible);
+
+		if (visible) {
+			numMatches++;
+			updateMatches();
+		}
 
 		if (visible) {
 			logDiv.appendChild(element);
@@ -243,6 +286,8 @@ var Main = (function() {
 	}
 
 	function onMessage_removeClient(info) {
+		console.log("Remove client.");
+
 		var client = null;
 		
 		for (var i = 0; i < clients.length; i++) {
@@ -274,12 +319,24 @@ var Main = (function() {
 			statusField = document.getElementById("field-status");
 			ipField = document.getElementById("field-ip");
 			regexField = document.getElementById("regex-textfield");
+			matchesField = document.getElementById("matches");
+			filterInfo = document.getElementById("checkbox-info");
+			filterDebug = document.getElementById("checkbox-debug");
+			filterWarn = document.getElementById("checkbox-warn");
+			filterError = document.getElementById("checkbox-error");
 
 			// cache templates
 			cacheTemplates();
 			
 			// watch changes to regex field
 			$('#regex-textfield').keyup(onRegexChanged);
+
+			// watch log level toggles
+			$('#checkbox-info').change(rebuildFilters);
+			$('#checkbox-debug').change(rebuildFilters);
+			$('#checkbox-warn').change(rebuildFilters);
+			$('#checkbox-error').change(rebuildFilters);
+			rebuildFilters();
 
 			// lock the scroll window to the bottom
 			window.setInterval(function() {
@@ -353,6 +410,9 @@ var Main = (function() {
 						while (logDiv.firstChild) {
 							logDiv.removeChild(logDiv.firstChild);
 						}
+
+						matches = 0;
+						updateMatches();
 
 						activeClient = null;
 					}

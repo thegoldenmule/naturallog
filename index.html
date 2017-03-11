@@ -12,6 +12,7 @@
     <script>if (window.module) module = window.module;</script>
 
     <link href="stylesheets/main.css" rel="stylesheet" type="text/css">
+    <link href="stylesheets/checkbox.css" rel="stylesheet" type="text/css">
 </head>
 <body>
     <script>
@@ -44,12 +45,35 @@
         <div id="logs">
             
         </div>
+        <div id="level-filters">
+            
+        </div>
         <div id="toolbox">
             <div class="vertically-centered">
+                <label class="control control--checkbox">
+                    <input type="checkbox" checked="checked" id="checkbox-info"/>
+                    <div class="control__indicator bg-info"></div>
+                </label>
+
+                <label class="control control--checkbox">
+                    <input type="checkbox" checked="checked" id="checkbox-debug"/>
+                    <div class="control__indicator bg-debug"></div>
+                </label>
+
+                <label class="control control--checkbox">
+                    <input type="checkbox" checked="checked" id="checkbox-warn"/>
+                    <div class="control__indicator bg-warn"></div>
+                </label>
+
+                <label class="control control--checkbox">
+                    <input type="checkbox" checked="checked" id="checkbox-error"/>
+                    <div class="control__indicator bg-error" id="checkbox-error-div"></div>
+                </label>
+
                 <input id="regex-textfield" type="text" class="input-text-medium">
-                <span id="matches">238 matches.</span>
+                <span id="matches">0 matches.</span>
+
                 <div class="lock-div">
-                    <span>Lock to end</span>
                     <input id="lock-checkbox" type="checkbox" checked>
                 </div>
             </div>

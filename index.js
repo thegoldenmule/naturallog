@@ -18,8 +18,10 @@ function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
     titleBarStyle: 'hidden',
-    width: 800,
-    height: 600,
+    width: 700,
+    height: 700,
+    minWidth: 700,
+    minHeight: 700,
     icon: path.join(__dirname, 'assets/icons/png/64x64.png')
   });
   win.setMenu(null);
@@ -32,7 +34,7 @@ function createWindow () {
   }))
 
   // Open the DevTools.
-  win.webContents.openDevTools()
+  //win.webContents.openDevTools()
 
   // Emitted when the window is closed.
   win.on('closed', () => {
