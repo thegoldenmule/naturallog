@@ -21,5 +21,4 @@
 
 ###### Bug Fixes
 
-* CSS issues when display is small enough.
-	* Minimum window size.
+* ~~CSS issues when display is small enough.~~

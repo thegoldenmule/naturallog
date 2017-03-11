@@ -47,6 +47,90 @@ function formatTimestamp(timestamp) {
   	return time.join(":") + " " + suffix;
 }
 
+var InputController = (function() {
+
+	var combos = [];
+	var keyStack = [];
+
+	function execute() {
+		//console.log("Execute " + "(" + keyStack.join(", ") + ")");
+		for (var i = 0; i < combos.length; i++) {
+			var combo = combos[i];
+			var keys = combo.keys;
+
+			var valid = true;
+			for (var j = 0; j < keys.length; j++) {
+				if (keyStack.length > j) {
+					if (keyStack[j] != keys[j]) {
+						valid = false;
+						break;
+					}
+				}
+			}
+
+			if (valid) {
+				combo.callback();
+				break;
+			}
+		}
+	}
+
+	return {
+		register: function(keys, callback) {
+			combos.push({
+				keys		:keys,
+				callback	:callback
+			});
+
+			return this;
+		},
+		init: function() {
+			$(document).keydown(function(event) {
+				var value = event.keyCode;
+
+				// skip alts!
+				if (18 === value || 91 === value) {
+					return;
+				}
+
+				if (-1 === keyStack.indexOf(value)) {
+					keyStack.push(value);
+
+					execute();
+				}
+			});
+
+			$(document).keyup(function(event) {
+				var value = event.keyCode;
+
+				// skip alts!
+				if (18 === value || 91 === value) {
+					return;
+				}
+
+				var index = keyStack.indexOf(value);
+				keyStack.splice(index, 1);
+			});
+		}
+	};
+})();
+
+var FileController = (function() {
+
+
+	return {
+		save: function() {
+			console.log('FileController.Save');
+		},
+		open: function() {
+			console.log('FileController.Open');
+		},
+		copyToClipboard: function() {
+			console.log('FileController.Copy');
+		}
+	};
+})();
+
 var Main = (function() {
 
 	// contains information about log-server
@@ -179,6 +263,10 @@ var Main = (function() {
 		};
 
 		updateAllVisibility();
+	}
+
+	function shiftTabs(direction) {
+
 	}
 
 	function onRegexChanged(event) {
@@ -355,6 +443,26 @@ var Main = (function() {
 			socket.on('removeClient', onMessage_removeClient);
 
 			updateLogServerStatus();
+
+			// register combos
+			InputController
+				// ctrl + tab
+				.register([17, 9], function() { shiftTabs(1); })
+				// ctrl + shift + tab
+				.register([17, 16, 9], function() { shiftTabs(-1); })
+				// ctrl + s
+				.register([17, 83], FileController.save)
+				// ctrl + o
+				.register([17, 79], FileController.open)
+				// ctrl + delete
+				.register([17, 46], function () {
+					if (null !== activeClient) {
+						Main.removeTab(activeClient.info.id);
+					}
+				})
+				// ctrl + shift + c
+				.register([17, 16, 67], FileController.copyToClipboard)
+				.init();
 		},
 
 		selectTab: function(tabid) {
