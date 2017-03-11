@@ -2,7 +2,7 @@
 
 ###### New Features
 
-* Navigation through tabs via `ctrl + tab` or `cmd + tab`.
+* ~~Navigation through tabs via `ctrl + tab` or `cmd + tab`.~~
 * Toolbar.
 	* Hotkeys for all functions.
 	* File.
@@ -12,7 +12,7 @@
 		* Configurable color schemes.
 		* Tabs on/off, i.e. aggregate logs in a single tab.
     * Edit.
-    	* Copy to clipboard.
+    	* ~~Copy to clipboard.~~
     	* Clear.
 
 ###### Improvements
