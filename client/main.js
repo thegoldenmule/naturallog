@@ -196,6 +196,7 @@ var Main = (function() {
 	var ipField;
 	var regexField;
 	var matchesField;
+	var statusbarField;
 
 	var filterInfo;
 	var filterDebug;
@@ -213,6 +214,10 @@ var Main = (function() {
 			'warn': getTemplate('template_warn'),
 			'error': getTemplate('template_error')
 		};
+	}
+
+	function statusbar(content) {
+		statusbarField.innerHTML = formatTimestamp(Date.now()) + " " + content;
 	}
 
 	function getTemplate(id) {
@@ -332,7 +337,7 @@ var Main = (function() {
 			messages.push(activeClient.messages[i].content);
 		}
 
-		return message.join("\n");
+		return messages.join("\n");
 	}
 
 	function onRegexChanged(event) {
@@ -391,6 +396,8 @@ var Main = (function() {
 	}
 
 	function onMessage_addClient(info) {
+		statusbar("New client connected.");
+
 		var tab = newTab(info);
 		tabContainer.appendChild(tab);
 
@@ -440,7 +447,7 @@ var Main = (function() {
 	}
 
 	function onMessage_removeClient(info) {
-		console.log("Remove client.");
+		statusbar("Client disconnected : " + info.name);
 
 		var client = null;
 		
@@ -476,6 +483,7 @@ var Main = (function() {
 			filterDebug = document.getElementById("checkbox-debug");
 			filterWarn = document.getElementById("checkbox-warn");
 			filterError = document.getElementById("checkbox-error");
+			statusbarField = document.getElementById("statusbar");
 
 			// cache templates
 			cacheTemplates();
@@ -526,9 +534,15 @@ var Main = (function() {
 				})
 				// ctrl + shift + c
 				.register([17, 16, 67], function() {
-					ClipboardController.copy(gatherAllLogs());
+					if (ClipboardController.copy(gatherAllLogs())) {
+						statusbar("Copied.");
+					} else {
+						statusbar("Could not copy.");
+					}
 				})
 				.init();
+
+			statusbar("Ready.");
 		},
 
 		selectTab: function(tabid) {

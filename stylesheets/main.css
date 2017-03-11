@@ -36,20 +36,20 @@ body {
   overflow-x: hidden;
   border-top: #888888 4px solid;
 }
-#level-filters {
-  position: absolute;
-  height: 24px;
-  bottom: 30px;
-  padding-left: 10px;
-}
 #toolbox {
   position: fixed;
-  bottom: 0px;
+  bottom: 30px;
   height: 30px;
   width: 100%;
   padding-left: 10px;
   overflow: hidden;
   background-color: #CCCCCC;
+}
+#statusbar {
+  position: absolute;
+  height: 30px;
+  bottom: 0px;
+  padding-left: 10px;
 }
 table td {
   overflow: hidden;
