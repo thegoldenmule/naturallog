@@ -1,4 +1,4 @@
-const {app, BrowserWindow} = require('electron')
+const {app, BrowserWindow, Menu} = require('electron')
 const path = require('path')
 const url = require('url')
 const log = require('electron-log')
@@ -9,6 +9,87 @@ log.transports.file.format = '{h}:{i}:{s}:{ms} {text}';
 log.transports.file.maxSize = 5 * 1024 * 1024;
 log.transports.file.file = __dirname + '/log.txt';
 log.transports.file.streamConfig = { flags: 'w' };
+
+// setup application menu
+var template = [
+  {
+    label: 'File',
+    submenu: [
+      {
+        label: 'Save',
+        accelerator: 'CmdOrCtrl+S',
+        click() {
+
+        }
+      },
+      {
+        label: 'Open',
+        accelerator: 'CmdOrCtrl+O',
+        click() {
+
+        }
+      }
+    ]
+  },
+  {
+    label: 'Edit',
+    submenu: [
+      {
+        label: 'Clear',
+        accelerator: 'CmdOrCtrl+Delete',
+        click() {
+          log.debug('Clear.');
+        }
+      },
+      {
+        label: 'Copy',
+        accelerator: 'CmdOrCtrl+Shift+S',
+        click() {
+          log.debug('Copy.');
+        }
+      }
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      {
+        label: 'Next Tab',
+        accelerator: 'CmdOrCtrl+Tab',
+        click() {
+
+        }
+      },
+      {
+        label: 'Previous Tab',
+        accelerator: 'CmdOrCtrl+Shift+S',
+        click() {
+          
+        }
+      },
+      {
+        label: 'Tabs',
+        submenu: [
+          {
+            label: 'Separate Tabs',
+            click() {
+
+            }
+          },
+          {
+            label: 'Aggregate Tabs',
+            click() {
+
+            }
+          }
+        ]
+      }
+    ]
+  }
+];
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -24,7 +105,6 @@ function createWindow () {
     minHeight: 700,
     icon: path.join(__dirname, 'assets/icons/png/64x64.png')
   });
-  win.setMenu(null);
 
   // and load the index.html of the app.
   win.loadURL(url.format({

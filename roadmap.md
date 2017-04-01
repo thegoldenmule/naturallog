@@ -18,6 +18,8 @@
 ###### Improvements
 
 * ~~Log level filters.~~
+* Load testing.
+* Performance analysis.
 
 ###### Bug Fixes
 
