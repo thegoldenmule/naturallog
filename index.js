@@ -19,14 +19,20 @@ var template = [
         label: 'Save',
         accelerator: 'CmdOrCtrl+S',
         click() {
-
+          // ?
+          // gettab
         }
       },
       {
         label: 'Open',
         accelerator: 'CmdOrCtrl+O',
         click() {
-
+          clientComm.forward(
+            'filemenu',
+            {
+              type: 'addtab',
+              messages: []
+            });
         }
       }
     ]
@@ -38,14 +44,22 @@ var template = [
         label: 'Clear',
         accelerator: 'CmdOrCtrl+Delete',
         click() {
-          log.debug('Clear.');
+          clientComm.forward(
+            'filemenu',
+            {
+              type:'clear'
+            });
         }
       },
       {
         label: 'Copy',
         accelerator: 'CmdOrCtrl+Shift+S',
         click() {
-          log.debug('Copy.');
+          clientComm.forward(
+            'filemenu',
+            {
+              type:'copy'
+            });
         }
       }
     ]
@@ -57,14 +71,24 @@ var template = [
         label: 'Next Tab',
         accelerator: 'CmdOrCtrl+Tab',
         click() {
-
+          clientComm.forward(
+            'filemenu',
+            {
+              type: 'switchtabs',
+              value: 1
+            });
         }
       },
       {
         label: 'Previous Tab',
         accelerator: 'CmdOrCtrl+Shift+S',
         click() {
-          
+          clientComm.forward(
+            'filemenu',
+            {
+              type: 'switchtabs',
+              value: -1
+            });
         }
       },
       {
@@ -73,13 +97,23 @@ var template = [
           {
             label: 'Separate Tabs',
             click() {
-
+              clientComm.forward(
+                'filemenu',
+                {
+                  type: 'tablayout',
+                  value: 0
+                });
             }
           },
           {
             label: 'Aggregate Tabs',
             click() {
-
+              clientComm.forward(
+                'filemenu',
+                {
+                  type: 'tablayout',
+                  value: 1
+                });
             }
           }
         ]

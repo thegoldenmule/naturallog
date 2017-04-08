@@ -472,6 +472,23 @@ var Main = (function() {
 		$(client.tab).addClass('dead-tab');
 	}
 
+	function onMessage_fileMenu(menuOption) {
+		var type = menuOption.type;
+		if ('clear' === type) {
+			Main.clearTab();
+		} else if ('copy' === type) {
+			Main.copyTab();
+		} else if ('switchtabs' === type) {
+			shiftTabs(menuOption.value);
+		} else if ('tablayout' === type) {
+
+		} else if ('addtab' === type) {
+
+		} else if ('gettab' === type) {
+
+		}
+	}
+
 	return {
 		init: function() {
 			// cache elements
@@ -516,6 +533,7 @@ var Main = (function() {
 			socket.on('addClient', onMessage_addClient);
 			socket.on('updateClient', onMessage_updateClient);
 			socket.on('removeClient', onMessage_removeClient);
+			socket.on('filemenu', onMessage_fileMenu)
 
 			updateLogServerStatus();
 
@@ -530,33 +548,37 @@ var Main = (function() {
 				// ctrl + o
 				.register([17, 79], FileController.open)
 				// ctrl + delete
-				.register([17, 46], function () {
-					if (null !== activeClient) {
-						if (activeClient.isConnected) {
-							for (var i = 0, len = activeClient.elements.length; i < len; i++) {
-								var node = activeClient.elements[i];
-								if (node.parentNode) {
-									node.parentNode.removeChild(node);
-								}
-							}
-							activeClient.elements = [];
-							activeClient.messages = [];
-						} else {
-							Main.removeTab(activeClient.info.id);
-						}
-					}
-				})
+				.register([17, 46], Main.clearTab)
 				// ctrl + shift + c
-				.register([17, 16, 67], function() {
-					if (ClipboardController.copy(gatherAllLogs())) {
-						statusbar("Copied.");
-					} else {
-						statusbar("Could not copy.");
-					}
-				})
+				.register([17, 16, 67], Main.copyTab)
 				.init();
 
 			statusbar("Ready.");
+		},
+
+		copyTab: function() {
+			if (ClipboardController.copy(gatherAllLogs())) {
+				statusbar("Copied.");
+			} else {
+				statusbar("Could not copy.");
+			}
+		},
+
+		clearTab: function () {
+			if (null !== activeClient) {
+				if (activeClient.isConnected) {
+					for (var i = 0, len = activeClient.elements.length; i < len; i++) {
+						var node = activeClient.elements[i];
+						if (node.parentNode) {
+							node.parentNode.removeChild(node);
+						}
+					}
+					activeClient.elements = [];
+					activeClient.messages = [];
+				} else {
+					Main.removeTab(activeClient.info.id);
+				}
+			}
 		},
 
 		selectTab: function(tabid) {
