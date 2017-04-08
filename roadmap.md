@@ -13,7 +13,10 @@
 		* Tabs on/off, i.e. aggregate logs in a single tab.
     * Edit.
     	* ~~Copy to clipboard.~~
-    	* Clear.
+    	* ~~Clear.~~
+    	* Block.
+    		* Identifier regex.
+    		* IP ranges.
 
 ###### Improvements
 
