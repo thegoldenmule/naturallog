@@ -4,7 +4,7 @@
 
 * ~~Navigation through tabs via `ctrl + tab` or `cmd + tab`.~~
 * Toolbar.
-	* Hotkeys for all functions.
+	* ~~Hotkeys for all functions.~~
 	* File.
 		* Save/load logs.
 	* View.

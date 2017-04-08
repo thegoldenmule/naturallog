@@ -407,7 +407,8 @@ var Main = (function() {
 			tabTitle: document.getElementById("tab-" + info.id + "-title"),
 			tabClose: document.getElementById("tab-" + info.id + "-close"),
 			messages : [],
-			elements : []
+			elements : [],
+			isConnected: true
 		};
 
 		clients.push(client);
@@ -455,6 +456,8 @@ var Main = (function() {
 			var element = clients[i];
 			if (element.info.id == info.id) {
 				element.info = info;
+				element.isConnected = false;
+
 				client = element;
 				break;
 			}
@@ -529,7 +532,18 @@ var Main = (function() {
 				// ctrl + delete
 				.register([17, 46], function () {
 					if (null !== activeClient) {
-						Main.removeTab(activeClient.info.id);
+						if (activeClient.isConnected) {
+							for (var i = 0, len = activeClient.elements.length; i < len; i++) {
+								var node = activeClient.elements[i];
+								if (node.parentNode) {
+									node.parentNode.removeChild(node);
+								}
+							}
+							activeClient.elements = [];
+							activeClient.messages = [];
+						} else {
+							Main.removeTab(activeClient.info.id);
+						}
 					}
 				})
 				// ctrl + shift + c
