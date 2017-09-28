@@ -38,6 +38,7 @@ Checkout the **[naturallog-examples](https://github.com/thegoldenmule/naturallog
 
 For development:
 
+`npm install -g electron`
 `npm install && electron .`
 
 For releases:
