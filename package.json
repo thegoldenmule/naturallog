@@ -12,13 +12,11 @@
   },
   "devDependencies": {
     "electron": "1.6.1",
-    "electron-packager": "8.5.2"
+    "electron-packager": "^15.5.1"
   },
   "scripts": {
     "dev": "./node_modules/.bin/nodemon -x 'npm run start'",
     "start": "./node_modules/.bin/electron .",
-    "package-win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --icon=assets/icons/ico/logo.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Natural-Log\"",
-    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/ico/icon.icns --prune=true --out=release-builds",
-    "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --icon=assets/icons/png/256x256.png --prune=true --out=release-builds"
+    "package-mac": "npx electron-packager . 'ln' --overwrite --platform=darwin --arch=x64 --icon=assets/icons/ico/icon.icns --prune=true --out=release-builds"
   }
 }
