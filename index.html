@@ -20,13 +20,13 @@
     </script>
 
     <!-- Templates -->
-    <script type="text/template" id="template_system"><p class='log-system'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
-    <script type="text/template" id="template_info"><p class='log-info'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
-    <script type="text/template" id="template_debug"><p class='log-debug'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
-    <script type="text/template" id="template_warn"><p class='log-warn'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
-    <script type="text/template" id="template_error"><p class='log-error'><span class='timestamp'>[{{timestamp}}]</span><span class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_system"><p class='log-system'><span id='element-ts-{{id}}' class='timestamp'>[{{timestamp}}]</span><span id='element-ms-{{id}}' class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_info"><p class='log-info'><span id='element-ts-{{id}}' class='timestamp'>[{{timestamp}}]</span><span id='element-ms-{{id}}' class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_debug"><p class='log-debug'><span id='element-ts-{{id}}' class='timestamp'>[{{timestamp}}]</span><span id='element-ms-{{id}}' class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_warn"><p class='log-warn'><span id='element-ts-{{id}}' class='timestamp'>[{{timestamp}}]</span><span id='element-ms-{{id}}' class='message'>{{message}}</span></p></script>
+    <script type="text/template" id="template_error"><p class='log-error'><span id='element-ts-{{id}}' class='timestamp'>[{{timestamp}}]</span><span id='element-ms-{{id}}' class='message'>{{message}}</span></p></script>
 
-    <script type="text/template" id="template_tab"><td><span id="tab-{{tabId}}-close" class="hidden tab-close">&#10006;</span><span id="tab-{{tabId}}-title" class="tab-title"><a>{{title}}</a></span></td></script>
+    <script type="text/template" id="template_tab"><td><span id="tab-{{tabId}}-close" class="hidden tab-close" style="cursor: pointer;">&#10006;</span><span id="tab-{{tabId}}-title" class="tab-title"><a>{{title}}</a></span></td></script>
     <!-- End Templates -->
 
     <div id="container">

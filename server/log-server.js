@@ -15,7 +15,7 @@ const logLevels = [
 ];
 
 // regex for matching messages from a client
-const messageRegex = new RegExp(/^\{(\w*)\}:(.*)$/);
+const messageRegex = new RegExp(/^\{(\w*)\}:/);
 
 var ids = 0;
 var clients = [];
@@ -48,7 +48,8 @@ function onConnect(logClient) {
         var match = messageRegex.exec(message);
         if (match) {
           var type = match[1];
-          var message = match[2];
+          var index = message.indexOf(':');
+          var message = message.slice(index + 1);
 
           // handle identity events
           if (type == "Identify") {
@@ -71,6 +72,8 @@ function onConnect(logClient) {
           else {
             log.warn("Unknown message received.");
           }
+        } else {
+          console.log('Does not match message format.');
         }
     });
 
@@ -91,7 +94,7 @@ function onConnect(logClient) {
  *
  * @param      {<type>}  logClient  The log-client-controller.
  */
-module.exports = function(logClient) {
+module.exports = async (logClient) => {
   log.debug("Starting log-server.");
 
   // gather ip addresses
@@ -118,7 +121,7 @@ module.exports = function(logClient) {
   });
 
   // start accepting client connections
-  var server = ws
+  ws
     .createServer(onConnect(logClient))
     .listen(port);
 };

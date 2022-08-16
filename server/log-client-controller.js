@@ -5,7 +5,7 @@
 const log = require('electron-log')
 const app = require('http').createServer(function handler (req, res) {log.debug("Request : " + req);})
 const io = require('socket.io')(app);
-const port = 8080;
+const port = 8888;
 
 var logClient = null;
 var info =	{

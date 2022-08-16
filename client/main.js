@@ -204,6 +204,8 @@ var Main = (function() {
 	var filterError;
 	var filters;
 
+	var elementIds = 0;
+
 	var regex = null;
 
 	function cacheTemplates() {
@@ -288,14 +290,22 @@ var Main = (function() {
 	}
 
 	function newLog(level, message, timestamp) {
-		var htmlString = replace(
+		const id = elementIds++;
+		const htmlString = replace(
 			logTemplates[level.toLowerCase()],
 			{
 				message: message,
-				timestamp: formatTimestamp(timestamp)
+				timestamp: formatTimestamp(timestamp),
+				id,
 			});
 
-		return $.parseHTML(htmlString)[0];
+		const elements = $.parseHTML(htmlString)[0];
+
+		$(`element-ts-${id}`).click(() => {
+			$(`element-ms-${id}`).toggleClass('log-hidden');
+		});
+
+		return elements;
 	}
 
 	function rebuildFilters() {
@@ -525,7 +535,7 @@ var Main = (function() {
 				}
 			}, 0);
 
-			var socket = io('http://localhost:8080');
+			var socket = io('http://localhost:8888');
 
 			// listen for events
 			socket.on('info', onMessage_info);

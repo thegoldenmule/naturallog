@@ -10,129 +10,14 @@ log.transports.file.maxSize = 5 * 1024 * 1024;
 log.transports.file.file = __dirname + '/log.txt';
 log.transports.file.streamConfig = { flags: 'w' };
 
-// setup application menu
-var template = [
-  {
-    label: 'File',
-    submenu: [
-      {
-        label: 'Save',
-        accelerator: 'CmdOrCtrl+S',
-        click() {
-          // ?
-          // gettab
-        }
-      },
-      {
-        label: 'Open',
-        accelerator: 'CmdOrCtrl+O',
-        click() {
-          clientComm.forward(
-            'filemenu',
-            {
-              type: 'addtab',
-              messages: []
-            });
-        }
-      }
-    ]
-  },
-  {
-    label: 'Edit',
-    submenu: [
-      {
-        label: 'Clear',
-        accelerator: 'CmdOrCtrl+Delete',
-        click() {
-          clientComm.forward(
-            'filemenu',
-            {
-              type:'clear'
-            });
-        }
-      },
-      {
-        label: 'Copy',
-        accelerator: 'CmdOrCtrl+Shift+S',
-        click() {
-          clientComm.forward(
-            'filemenu',
-            {
-              type:'copy'
-            });
-        }
-      }
-    ]
-  },
-  {
-    label: 'View',
-    submenu: [
-      {
-        label: 'Next Tab',
-        accelerator: 'CmdOrCtrl+Tab',
-        click() {
-          clientComm.forward(
-            'filemenu',
-            {
-              type: 'switchtabs',
-              value: 1
-            });
-        }
-      },
-      {
-        label: 'Previous Tab',
-        accelerator: 'CmdOrCtrl+Shift+S',
-        click() {
-          clientComm.forward(
-            'filemenu',
-            {
-              type: 'switchtabs',
-              value: -1
-            });
-        }
-      },
-      {
-        label: 'Tabs',
-        submenu: [
-          {
-            label: 'Separate Tabs',
-            click() {
-              clientComm.forward(
-                'filemenu',
-                {
-                  type: 'tablayout',
-                  value: 0
-                });
-            }
-          },
-          {
-            label: 'Aggregate Tabs',
-            click() {
-              clientComm.forward(
-                'filemenu',
-                {
-                  type: 'tablayout',
-                  value: 1
-                });
-            }
-          }
-        ]
-      }
-    ]
-  }
-];
-
-const menu = Menu.buildFromTemplate(template);
-Menu.setApplicationMenu(menu);
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let win
+let win;
+let clientComm;
 
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({
-    titleBarStyle: 'hidden',
     width: 700,
     height: 700,
     minWidth: 700,
@@ -145,10 +30,7 @@ function createWindow () {
     pathname: path.join(__dirname, 'index.html'),
     protocol: 'file:',
     slashes: true
-  }))
-
-  // Open the DevTools.
-  win.webContents.openDevTools()
+  }));
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -156,13 +38,40 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null
-  })
+  });
+
+  // setup application menu
+  var template = [
+    {},
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Open Dev Tools',
+          click: () => {
+            win.webContents.openDevTools();
+          }
+        },
+        {
+          label: 'Clear',
+          click: () => clientComm.forward('filemenu', { type: 'clear'}),
+        },
+        {
+          label: 'Copy',
+          click: () => clientComm.forward('filemenu', { type: 'copy'}),
+        },
+      ],
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', createWindow);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
@@ -171,7 +80,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
-})
+});
 
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
@@ -179,8 +88,8 @@ app.on('activate', () => {
   if (win === null) {
     createWindow()
   }
-})
+});
 
 // start our server + log-client controller
-var clientComm = require('./server/log-client-controller.js');
-var logServer = require('./server/log-server.js')(clientComm);
+clientComm = require('./server/log-client-controller.js');
+require('./server/log-server.js')(clientComm);
