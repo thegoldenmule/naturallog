@@ -299,13 +299,7 @@ var Main = (function() {
 				id,
 			});
 
-		const elements = $.parseHTML(htmlString)[0];
-
-		$(`element-ts-${id}`).click(() => {
-			$(`element-ms-${id}`).toggleClass('log-hidden');
-		});
-
-		return elements;
+		return $.parseHTML(htmlString)[0];
 	}
 
 	function rebuildFilters() {
@@ -402,6 +396,16 @@ var Main = (function() {
 
 		if (visible) {
 			logDiv.appendChild(element);
+
+			$(element).mouseup(evt => {
+				const targetId = evt.target.id;
+				const id = parseInt(targetId.substring("element-ts-".length));
+				if (isNaN(id)) {
+					return;
+				}
+					
+				$(`#element-ms-${id}`).toggleClass('log-hidden');
+			});
 		}
 	}
 

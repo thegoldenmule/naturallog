@@ -113,6 +113,9 @@ p {
   font-style: italic;
   font-weight: bold;
 }
+.log-handle {
+  cursor: pointer;
+}
 .log-system {
   padding-top: 10px;
   padding-bottom: 10px;
